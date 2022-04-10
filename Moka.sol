@@ -27,11 +27,12 @@ contract Moka is ERC20Burnable, Operator {
     using SafeMath for uint256;
 
     // Initial distribution for the first 24h genesis pools
-    uint256 public constant INITIAL_GENESIS_POOL_DISTRIBUTION = 11000 ether;
-    // Initial distribution for the day 2-5 MOKA-WETH LP -> MOKA pool
-    uint256 public constant INITIAL_MOKA_POOL_DISTRIBUTION = 140000 ether;
-    // Distribution for airdrops wallet
-    uint256 public constant INITIAL_AIRDROP_WALLET_DISTRIBUTION = 9000 ether;
+    uint256 public constant INITIAL_GENESIS_POOL_DISTRIBUTION = 10000 ether;
+    // Initial distribution for the day 2-5 MOKA-WBTC.e LP -> MOKA pool
+    uint256 public constant INITIAL_MOKA_POOL_DISTRIBUTION = 60000 ether;
+    // Distribution for airdrops wallet -- removed to make the community happy
+    // uint256 public constant INITIAL_AIRDROP_WALLET_DISTRIBUTION = 10000 ether;
+    uint256 public constant INITIAL_AIRDROP_WALLET_DISTRIBUTION = 0 ether;
 
     // Have the rewards been distributed to the pools
     bool public rewardPoolDistributed = false;
@@ -84,13 +85,13 @@ contract Moka is ERC20Burnable, Operator {
      */
     constructor(uint256 _taxRate, address _taxCollectorAddress) public ERC20("MOKA Finance", "MOKA") {
         
-        require(_taxRate < 10000, "tax equal or bigger to 100%");
+        require(_taxRate < 3001, "tax needs to be less than 30%");
         require(_taxCollectorAddress != address(0), "tax collector address must be non-zero address");
 
         excludeAddress(address(this));
 
-        // Mints 10 MOKA to contract creator for initial pool setup
-        _mint(msg.sender, 10 ether);
+        // Mints 1 MOKA to contract creator for initial pool setup
+        _mint(msg.sender, 1 ether);
         taxRate = _taxRate;
         taxCollectorAddress = _taxCollectorAddress;
     }
@@ -121,7 +122,7 @@ contract Moka is ERC20Burnable, Operator {
 
         // Cap the sell factor cooldown to 26 weeks 
         if (timeSinceLastSale >= 12) {
-            return 100; // 
+            return 100;
         }
 
         // Return the fee factor minus the number of weeks since sale * 10.  SellFeeIncreaseFactor is immutable at 120 so the most this can subtract is 11*10 = 120 - 110 = 10%
@@ -206,7 +207,7 @@ contract Moka is ERC20Burnable, Operator {
 
     function setTaxRate(uint256 _taxRate) public onlyTaxOffice {
         require(!autoCalculateTax, "auto calculate tax cannot be enabled");
-        require(_taxRate < 10000, "tax equal or bigger to 100%");
+        require(_taxRate < 3001, "tax equal or bigger than 30%");
         taxRate = _taxRate;
     }
 
